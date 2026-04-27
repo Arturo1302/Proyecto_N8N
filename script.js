@@ -259,7 +259,7 @@ form.addEventListener('submit', async function (e) {
   };
 
   try {
-    var response = await fetch('https://abigail-gonglike-brigid.ngrok-free.dev/webhook-test/leads/intake', {
+    var response = await fetch('https://arturo1302.app.n8n.cloud/webhook-test/formulario', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
