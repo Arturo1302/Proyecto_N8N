@@ -1,0 +1,166 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Solicitud de Inasistencia</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- Fondo decorativo -->
+  <div class="bg-shape shape-1"></div>
+  <div class="bg-shape shape-2"></div>
+
+  <main class="wrapper">
+
+    <!-- Encabezado del formulario -->
+    <header class="form-header">
+      <span class="badge">Gestión de Ausencias</span>
+      <h1>Solicitud de <br><em>Inasistencia</em></h1>
+      <p>Completa el formulario para registrar tu ausencia. Todos los campos son obligatorios.</p>
+    </header>
+
+    <!-- Formulario principal -->
+    <form id="absenceForm" novalidate>
+
+      <!-- Sección 1: Datos personales -->
+      <fieldset class="section">
+        <legend class="section-title">
+          <span class="step-dot">1</span>
+          Datos Personales
+        </legend>
+
+        <!-- Nombre completo -->
+        <div class="form-group">
+          <label for="name">Nombre Completo</label>
+          <input
+            type="text"
+            id="name"
+            name="name"
+            placeholder="Ej. María García López"
+            autocomplete="name"
+          >
+          <!-- Mensaje de error específico de este campo -->
+          <span class="field-error" id="name-error"></span>
+        </div>
+
+        <!-- Número de identificación -->
+        <div class="form-group">
+          <label for="id">Número de Identificación</label>
+          <input
+            type="text"
+            id="id"
+            name="id"
+            placeholder="Ej. 1098765432"
+          >
+          <span class="field-error" id="id-error"></span>
+        </div>
+
+        <!-- Correo electrónico -->
+        <div class="form-group">
+          <label for="email">Correo Electrónico</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            placeholder="correo@ejemplo.com"
+            autocomplete="email"
+          >
+          <span class="field-error" id="email-error"></span>
+        </div>
+      </fieldset>
+
+      <!-- Sección 2: Motivo -->
+      <fieldset class="section">
+        <legend class="section-title">
+          <span class="step-dot">2</span>
+          Motivo de Inasistencia
+        </legend>
+
+        <!-- Select de motivo -->
+        <div class="form-group">
+          <label for="reason">Motivo</label>
+          <div class="select-wrapper">
+            <select id="reason" name="reason">
+              <option value="">— Selecciona un motivo —</option>
+              <option value="illness">Enfermedad</option>
+              <option value="medical">Cita médica</option>
+              <option value="family">Problema familiar</option>
+              <option value="other">Otro</option>
+            </select>
+            <!-- Ícono de flecha dentro del select -->
+            <svg class="select-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+          </div>
+          <span class="field-error" id="reason-error"></span>
+        </div>
+
+        <!-- Campo adicional que aparece solo si selecciona "Otro" -->
+        <div class="form-group hidden" id="otherReasonGroup">
+          <label for="otherReason">Especifica el motivo</label>
+          <input
+            type="text"
+            id="otherReason"
+            name="otherReason"
+            placeholder="Describe brevemente el motivo..."
+          >
+          <span class="field-error" id="otherReason-error"></span>
+        </div>
+      </fieldset>
+
+      <!-- Sección 3: Archivo de soporte -->
+      <fieldset class="section">
+        <legend class="section-title">
+          <span class="step-dot">3</span>
+          Documento de Soporte
+        </legend>
+
+        <div class="form-group">
+          <label for="supportFile">Archivo de soporte</label>
+
+          <!-- Zona de carga personalizada -->
+          <label class="file-drop" id="fileDrop" for="supportFile">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="17 8 12 3 7 8"/>
+              <line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+            <!-- Texto que cambia al seleccionar archivo -->
+            <p id="fileLabel">Arrastra un archivo o <strong>haz clic aquí</strong></p>
+            <small>PDF, JPG o PNG · Máximo 5 MB</small>
+          </label>
+
+          <!-- Input file oculto visualmente -->
+          <input
+            type="file"
+            id="supportFile"
+            name="supportFile"
+            accept=".pdf,.jpg,.jpeg,.png"
+            class="hidden-input"
+          >
+          <span class="field-error" id="file-error"></span>
+        </div>
+      </fieldset>
+
+      <!-- Botón de envío -->
+      <button type="submit" id="btnSubmit">
+        <span id="btnText">Enviar Solicitud</span>
+        <!-- Spinner visible solo durante el procesamiento -->
+        <span class="spinner hidden" id="btnSpinner"></span>
+      </button>
+
+    </form>
+
+    <!-- Mensaje de respuesta (éxito o error general) -->
+    <div id="response-msg" class="response-msg hidden"></div>
+
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>

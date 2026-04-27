@@ -1,0 +1,421 @@
+/* styles.css */
+
+/* ===========================
+   VARIABLES Y RESET
+=========================== */
+:root {
+  --bg:          #f4f1ec;      /* crema cálido */
+  --surface:     #ffffff;
+  --surface-2:   #faf9f7;
+  --accent:      #2a5c45;      /* verde bosque */
+  --accent-light:#e8f0eb;
+  --text:        #1a1a1a;
+  --text-muted:  #7a7a7a;
+  --border:      #ddd9d3;
+  --error:       #c0392b;
+  --error-bg:    #fdf0ef;
+  --success:     #1e6b45;
+  --success-bg:  #eaf5ee;
+  --radius:      10px;
+  --shadow:      0 4px 24px rgba(0,0,0,0.07);
+  --font-body:   'DM Sans', sans-serif;
+  --font-display:'Playfair Display', serif;
+  --transition:  0.25s ease;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 3rem 1.5rem;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* ===========================
+   FORMAS DECORATIVAS DE FONDO
+=========================== */
+.bg-shape {
+  position: fixed;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.35;
+}
+
+.shape-1 {
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, #b8d4c5, transparent 70%);
+  top: -100px;
+  right: -120px;
+}
+
+.shape-2 {
+  width: 350px;
+  height: 350px;
+  background: radial-gradient(circle, #d4c9b8, transparent 70%);
+  bottom: -80px;
+  left: -100px;
+}
+
+/* ===========================
+   CONTENEDOR PRINCIPAL
+=========================== */
+.wrapper {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 520px;
+  animation: fadeUp 0.5s ease both;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ===========================
+   ENCABEZADO
+=========================== */
+.form-header {
+  margin-bottom: 2rem;
+}
+
+.badge {
+  display: inline-block;
+  background: var(--accent-light);
+  color: var(--accent);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.3rem 0.8rem;
+  border-radius: 99px;
+  margin-bottom: 1rem;
+}
+
+.form-header h1 {
+  font-family: var(--font-display);
+  font-size: 2.4rem;
+  line-height: 1.2;
+  color: var(--text);
+  margin-bottom: 0.6rem;
+}
+
+.form-header h1 em {
+  font-style: italic;
+  color: var(--accent);
+}
+
+.form-header p {
+  color: var(--text-muted);
+  font-size: 0.92rem;
+  line-height: 1.6;
+}
+
+/* ===========================
+   SECCIONES / FIELDSETS
+=========================== */
+fieldset {
+  border: none;
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 1.8rem;
+  margin-bottom: 1.2rem;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 1.4rem;
+}
+
+/* Numeración de cada sección */
+.step-dot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  border-radius: 50%;
+}
+
+/* ===========================
+   GRUPOS DE CAMPOS
+=========================== */
+.form-group {
+  margin-bottom: 1.1rem;
+}
+
+.form-group:last-child {
+  margin-bottom: 0;
+}
+
+label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--text);
+  margin-bottom: 0.4rem;
+}
+
+/* ===========================
+   INPUTS Y SELECT
+=========================== */
+input[type="text"],
+input[type="email"] {
+  width: 100%;
+  padding: 0.7rem 0.9rem;
+  background: var(--surface-2);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(42, 92, 69, 0.12);
+}
+
+/* Borde rojo cuando el campo tiene error */
+input.invalid,
+select.invalid {
+  border-color: var(--error) !important;
+  box-shadow: 0 0 0 3px rgba(192, 57, 43, 0.1) !important;
+}
+
+/* Wrapper para el select + ícono de flecha */
+.select-wrapper {
+  position: relative;
+}
+
+select {
+  width: 100%;
+  padding: 0.7rem 2.5rem 0.7rem 0.9rem;
+  background: var(--surface-2);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  appearance: none;          /* oculta la flecha nativa */
+  cursor: pointer;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(42, 92, 69, 0.12);
+}
+
+/* Flecha SVG personalizada dentro del select */
+.select-arrow {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+/* ===========================
+   ZONA DE CARGA DE ARCHIVO
+=========================== */
+.file-drop {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1.8rem 1rem;
+  border: 2px dashed var(--border);
+  border-radius: var(--radius);
+  background: var(--surface-2);
+  cursor: pointer;
+  text-align: center;
+  transition: border-color var(--transition), background var(--transition);
+}
+
+.file-drop:hover {
+  border-color: var(--accent);
+  background: var(--accent-light);
+}
+
+/* Estado activo cuando el usuario arrastra un archivo encima */
+.file-drop.drag-over {
+  border-color: var(--accent);
+  background: var(--accent-light);
+}
+
+.file-drop svg {
+  width: 36px;
+  height: 36px;
+  color: var(--accent);
+  stroke: var(--accent);
+}
+
+.file-drop p {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.file-drop p strong {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.file-drop small {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+/* El input file real está oculto visualmente pero accesible */
+.hidden-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+/* ===========================
+   MENSAJES DE ERROR POR CAMPO
+=========================== */
+.field-error {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--error);
+  margin-top: 0.3rem;
+  min-height: 1rem;
+}
+
+/* ===========================
+   UTILIDAD: HIDDEN
+=========================== */
+.hidden {
+  display: none !important;
+}
+
+/* ===========================
+   BOTÓN DE ENVÍO
+=========================== */
+button[type="submit"] {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.9rem;
+  background: var(--accent);
+  color: #fff;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 600;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  margin-top: 0.5rem;
+  transition: background var(--transition), transform var(--transition), box-shadow var(--transition);
+}
+
+button[type="submit"]:hover:not(:disabled) {
+  background: #1e4433;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(42, 92, 69, 0.3);
+}
+
+button[type="submit"]:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+button[type="submit"]:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+/* Spinner animado dentro del botón */
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255,255,255,0.4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ===========================
+   MENSAJE DE RESPUESTA GENERAL
+=========================== */
+.response-msg {
+  margin-top: 1.2rem;
+  padding: 1rem 1.2rem;
+  border-radius: var(--radius);
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-align: center;
+  animation: fadeUp 0.3s ease both;
+}
+
+.response-msg.success {
+  background: var(--success-bg);
+  border: 1.5px solid #a8d5b5;
+  color: var(--success);
+}
+
+.response-msg.error {
+  background: var(--error-bg);
+  border: 1.5px solid #e8a89e;
+  color: var(--error);
+}
+
+/* ===========================
+   RESPONSIVE
+=========================== */
+@media (max-width: 540px) {
+  body {
+    padding: 1.5rem 1rem;
+  }
+
+  .form-header h1 {
+    font-size: 1.9rem;
+  }
+
+  fieldset {
+    padding: 1.3rem;
+  }
+}
