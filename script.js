@@ -236,56 +236,83 @@ function setLoading(isLoading) {
 // ============================================================
 // ENVÍO DEL FORMULARIO
 // ============================================================
+/* ============================================================
+CAMBIA SOLO LA PARTE DE ENVÍO DEL FORMULARIO
+REEMPLAZA DESDE:
+form.addEventListener('submit'...
+HASTA EL FINAL DE ESE BLOQUE
+============================================================ */
+
 form.addEventListener('submit', async function (e) {
   e.preventDefault();
 
   hideResponseMsg();
   clearAllErrors();
 
-  // Si hay errores de validación, no envía
   if (!validateForm()) return;
 
   setLoading(true);
 
-  // Armamos los datos que se envían (igual que en el ejemplo de referencia)
-  var data = {
-    name:        nameInput.value.trim(),
-    id:          idInput.value.trim(),
-    email:       emailInput.value.trim(),
-    reason:      reasonSelect.value,
-    otherReason: reasonSelect.value === 'other' ? otherReasonInput.value.trim() : '',
-    fileName:    fileInput.files[0].name
-    // Nota: para enviar el archivo real se usaría FormData en lugar de JSON
-  };
-
   try {
-    var response = await fetch('https://arturo1302.app.n8n.cloud/webhook-test/formulario', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    });
 
-    var result = await response.json();
+    // 🔥 AHORA USAMOS FORMDATA PARA ENVIAR ARCHIVO BINARIO
+    var formData = new FormData();
+
+    formData.append('name', nameInput.value.trim());
+    formData.append('id', idInput.value.trim());
+    formData.append('email', emailInput.value.trim());
+    formData.append('reason', reasonSelect.value);
+
+    formData.append(
+      'otherReason',
+      reasonSelect.value === 'other'
+        ? otherReasonInput.value.trim()
+        : ''
+    );
+
+    // 🔥 ARCHIVO REAL (PDF/JPG/PNG)
+    formData.append('supportFile', fileInput.files[0]);
+
+    var response = await fetch(
+      'https://arturo1302.app.n8n.cloud/webhook-test/formulario',
+      {
+        method: 'POST',
+        body: formData
+      }
+    );
+
+    var text = await response.text();
 
     if (response.ok) {
-      // Éxito: limpia el formulario y muestra mensaje
-      showResponseMsg('success', '✔ Solicitud enviada correctamente. Nos pondremos en contacto contigo.');
+
+      showResponseMsg(
+        'success',
+        '✔ Solicitud enviada correctamente.'
+      );
+
       form.reset();
-      fileLabel.innerHTML = 'Arrastra un archivo o <strong>haz clic aquí</strong>';
+
+      fileLabel.innerHTML =
+        'Arrastra un archivo o <strong>haz clic aquí</strong>';
+
       otherReasonGroup.classList.add('hidden');
       fileDrop.style.borderColor = '';
+
     } else {
-      throw new Error(result.error || 'Error en el servidor. Intenta nuevamente.');
+      throw new Error(text || 'Error al enviar.');
     }
 
   } catch (error) {
-    showResponseMsg('error', '✖ ' + error.message);
+
+    showResponseMsg(
+      'error',
+      '✖ Error de conexión con el servidor.'
+    );
+
   } finally {
     setLoading(false);
   }
 });
-
-
 // ============================================================
 // LIMPIAR ERROR EN TIEMPO REAL (mientras el usuario escribe)
 // ============================================================
