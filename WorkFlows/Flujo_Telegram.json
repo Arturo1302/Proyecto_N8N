@@ -1,0 +1,298 @@
+{
+    "nodes": [
+      {
+        "parameters": {
+          "updates": [
+            "*"
+          ],
+          "additionalFields": {}
+        },
+        "type": "n8n-nodes-base.telegramTrigger",
+        "typeVersion": 1.2,
+        "position": [
+          -656,
+          192
+        ],
+        "id": "7b92c2f6-6e01-4c6c-8eec-a52d3b0d4dcd",
+        "name": "Telegram Trigger",
+        "webhookId": "0fc5cccd-ff24-4214-b2e6-c0bf632dc2b4",
+        "credentials": {
+          "telegramApi": {
+            "id": "NKArohtCS60adxiL",
+            "name": "Telegram account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "rules": {
+            "values": [
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": false,
+                    "leftValue": "",
+                    "typeValidation": "strict",
+                    "version": 3
+                  },
+                  "conditions": [
+                    {
+                      "id": "f10adb3f-c430-4152-9630-438a463c7d2a",
+                      "leftValue": "={{$json.message.text}}",
+                      "rightValue": "^\\d{6,12}$",
+                      "operator": {
+                        "type": "string",
+                        "operation": "regex"
+                      }
+                    }
+                  ],
+                  "combinator": "and"
+                }
+              },
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": false,
+                    "leftValue": "",
+                    "typeValidation": "strict",
+                    "version": 3
+                  },
+                  "conditions": [
+                    {
+                      "leftValue": "={{ $json.message.text }}",
+                      "rightValue": "hola",
+                      "operator": {
+                        "type": "string",
+                        "operation": "exists",
+                        "singleValue": true
+                      },
+                      "id": "98cbbaa1-3553-4cf1-ac40-d3937729eb7a"
+                    }
+                  ],
+                  "combinator": "and"
+                }
+              }
+            ]
+          },
+          "options": {
+            "ignoreCase": true
+          }
+        },
+        "type": "n8n-nodes-base.switch",
+        "typeVersion": 3.4,
+        "position": [
+          -448,
+          192
+        ],
+        "id": "1e2cad08-0775-4bbb-a33c-edce084ca2f3",
+        "name": "Switch1"
+      },
+      {
+        "parameters": {
+          "chatId": "={{ $json.message.chat.id }}",
+          "text": "Holaaa!!! Bienvenido al Bot de Consultas de tu Justificacion!!! \n\n\nPara Consultar el estado de tu justificacion ingresa tu numero de identidad (CC-TI):",
+          "additionalFields": {}
+        },
+        "type": "n8n-nodes-base.telegram",
+        "typeVersion": 1.2,
+        "position": [
+          -112,
+          160
+        ],
+        "id": "3b07f6d6-6ff9-40da-9a8b-4d349c82d2e2",
+        "name": "Send a text message",
+        "webhookId": "9e263fd2-4f10-4064-bd37-676fab8e3021",
+        "credentials": {
+          "telegramApi": {
+            "id": "NKArohtCS60adxiL",
+            "name": "Telegram account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "documentId": {
+            "__rl": true,
+            "value": "1OyktmfcowE1Sgb9bGEhRv_vlRxDHG4sqwa9swJTRBCU",
+            "mode": "list",
+            "cachedResultName": "Formulario_Justificaciones",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1OyktmfcowE1Sgb9bGEhRv_vlRxDHG4sqwa9swJTRBCU/edit?usp=drivesdk"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": "gid=0",
+            "mode": "list",
+            "cachedResultName": "Hoja 1",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1OyktmfcowE1Sgb9bGEhRv_vlRxDHG4sqwa9swJTRBCU/edit#gid=0"
+          },
+          "filtersUI": {
+            "values": [
+              {
+                "lookupColumn": "ID",
+                "lookupValue": "={{ $json.message.text }}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.7,
+        "position": [
+          -112,
+          -64
+        ],
+        "id": "801579e8-400f-4ba7-a523-6b62c8c3e000",
+        "name": "Get row(s) in sheet",
+        "alwaysOutputData": true,
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "BqERhx66OQojmy6G",
+            "name": "Google Sheets OAuth2 API"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 3
+            },
+            "conditions": [
+              {
+                "id": "0814b6a3-e361-4af3-a982-a1f6e2d10040",
+                "leftValue": "={{ $json.ID }}",
+                "rightValue": 0,
+                "operator": {
+                  "type": "number",
+                  "operation": "exists",
+                  "singleValue": true
+                }
+              }
+            ],
+            "combinator": "or"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.3,
+        "position": [
+          96,
+          -64
+        ],
+        "id": "4c0925a8-834e-4724-b64d-dbc7940f1f28",
+        "name": "If"
+      },
+      {
+        "parameters": {
+          "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+          "text": "=Holaaa!!! Solicitud encontrada  \n\n\nNombre: {{ $json['Nombre Completo'] }} \nCédula: {{ $json.ID }}\nEstado: {{$json.Estado}} \n",
+          "additionalFields": {}
+        },
+        "type": "n8n-nodes-base.telegram",
+        "typeVersion": 1.2,
+        "position": [
+          352,
+          -144
+        ],
+        "id": "8dbe1930-a463-40a7-b5f4-f51c0604c2df",
+        "name": "Send a text message1",
+        "webhookId": "bc7e57fc-d799-4106-9d0d-7e6f31af07aa",
+        "credentials": {
+          "telegramApi": {
+            "id": "NKArohtCS60adxiL",
+            "name": "Telegram account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+          "text": "=El numero ingresado, no se encuentra registrado, verifique su  numero y vuelvalo a intentar.",
+          "additionalFields": {}
+        },
+        "type": "n8n-nodes-base.telegram",
+        "typeVersion": 1.2,
+        "position": [
+          368,
+          32
+        ],
+        "id": "59750f9c-efc5-403b-ad15-1f3804c507d9",
+        "name": "Send a text message2",
+        "webhookId": "bc7e57fc-d799-4106-9d0d-7e6f31af07aa",
+        "credentials": {
+          "telegramApi": {
+            "id": "NKArohtCS60adxiL",
+            "name": "Telegram account"
+          }
+        }
+      }
+    ],
+    "connections": {
+      "Telegram Trigger": {
+        "main": [
+          [
+            {
+              "node": "Switch1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Switch1": {
+        "main": [
+          [
+            {
+              "node": "Get row(s) in sheet",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Send a text message",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get row(s) in sheet": {
+        "main": [
+          [
+            {
+              "node": "If",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "If": {
+        "main": [
+          [
+            {
+              "node": "Send a text message1",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Send a text message2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "pinData": {},
+    "meta": {
+      "templateCredsSetupCompleted": true,
+      "instanceId": "2d827bd58112a57832165cca82179a7f7d28e353113c7ad640c7313c7f708cf0"
+    }
+  }

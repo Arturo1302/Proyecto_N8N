@@ -1,0 +1,804 @@
+{
+    "nodes": [
+      {
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "formulario",
+          "options": {
+            "allowedOrigins": "*",
+            "binaryPropertyName": "supportFile"
+          }
+        },
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2.1,
+        "position": [
+          -368,
+          960
+        ],
+        "id": "a8d54095-dc00-40c7-9f20-c7309c9dd5e4",
+        "name": "Webhook1",
+        "webhookId": "e7fa408a-024c-4b8f-beef-d0a2aef8791b"
+      },
+      {
+        "parameters": {
+          "rules": {
+            "values": [
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict",
+                    "version": 3
+                  },
+                  "conditions": [
+                    {
+                      "leftValue": "={{ JSON.parse($json.choices[0].message.content).resultado }}",
+                      "rightValue": "VALIDA",
+                      "operator": {
+                        "type": "string",
+                        "operation": "equals"
+                      },
+                      "id": "2d31f33e-3a6f-4531-8246-a566feb3617d"
+                    }
+                  ],
+                  "combinator": "and"
+                }
+              },
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict",
+                    "version": 3
+                  },
+                  "conditions": [
+                    {
+                      "id": "f0af684f-c21c-4b15-b80c-db3f72f56f5f",
+                      "leftValue": "={{ JSON.parse($json.choices[0].message.content).resultado }}",
+                      "rightValue": "REVISION",
+                      "operator": {
+                        "type": "string",
+                        "operation": "equals"
+                      }
+                    }
+                  ],
+                  "combinator": "and"
+                }
+              },
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict",
+                    "version": 3
+                  },
+                  "conditions": [
+                    {
+                      "id": "cc3c8747-a47d-4448-9253-f4536ce0f9dd",
+                      "leftValue": "={{ JSON.parse($json.choices[0].message.content).resultado }}",
+                      "rightValue": "INVALIDA",
+                      "operator": {
+                        "type": "string",
+                        "operation": "equals"
+                      }
+                    }
+                  ],
+                  "combinator": "and"
+                }
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.switch",
+        "typeVersion": 3.4,
+        "position": [
+          752,
+          944
+        ],
+        "id": "b97f7c02-c8f9-40bb-a446-6196441c08ea",
+        "name": "Switch2"
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://openrouter.ai/api/v1/chat/completions",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "Authorization",
+                "value": "Bearer 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"
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          },
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={\n  \"model\": \"openai/gpt-4o-mini\",\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": \"Actúa como auditor ESTRICTO de justificaciones académicas. Debes analizar el documento adjunto como evidencia de una inasistencia y compararlo rigurosamente con la información registrada en el formulario.\\n\\nDATOS DEL FORMULARIO:\\n- Nombre: {{ $('Webhook1').item.json.body.name }}\\n- Identificación: {{ $('Webhook1').item.json.body.id }}\\n- Correo: {{ $('Webhook1').item.json.body.email }}\\n- Motivo reportado: {{ $('Webhook1').item.json.body.reason }}\\n- Descripción adicional:{{ $('Webhook1').item.json.body.otherReason }} \\n\\nTEXTO EXTRAÍDO DEL DOCUMENTO:\\n{{ $json.text.replace(/\\\\/g, '\\\\\\\\').replace(/\\\"/g, '\\\\\\\"').replace(/\\n/g, '\\\\n').replace(/\\r/g, '\\\\r').replace(/\\t/g, '\\\\t') }}\\n\\nDEBES EVALUAR DOS FACTORES OBLIGATORIOS:\\n1. Si el documento realmente sirve como evidencia válida de la inasistencia.\\n2. Si la información del formulario coincide con el documento.\\n\\nREGLAS ESTRICTAS PARA APROBAR:\\n\\nSOLO responde VALIDA si se cumplen ambas condiciones:\\n- El documento contiene evidencia oficial, clara y coherente como:\\n  • Incapacidad médica\\n  • Certificado médico\\n  • Orden médica\\n  • Cita médica verificable con fecha\\n  • Hospitalización\\n  • Emergencia familiar documentada\\n  • Documento institucional verificable\\n- Y además la información del formulario coincide razonablemente con el documento en motivo, fechas o identidad.\\n\\nResponde INVALIDA si ocurre cualquiera de estos casos:\\n- Documento sin relación con ausencia académica.\\n- Archivo vacío o sin contenido útil.\\n- Texto ilegible, incoherente o incompleto.\\n- Factura común, recibo cualquiera o comprobante irrelevante.\\n- Captura de pantalla sin contexto.\\n- Documento genérico sin nombres, fecha o entidad.\\n- Archivo sospechoso o aparentemente falso.\\n- El motivo del formulario contradice el documento.\\n- El documento pertenece a otra persona sin relación evidente.\\n- Las fechas no respaldan la ausencia solicitada.\\n- Texto demasiado corto o ambiguo.\\n\\nResponde REVISION si:\\n- Existe evidencia parcial pero insuficiente.\\n- Documento aparentemente válido pero faltan datos clave.\\n- Coincidencia parcial entre formulario y documento.\\n- Existen dudas razonables para aprobar automáticamente.\\n\\nREGLAS DE COINCIDENCIA:\\n- ALTA = nombre/motivo/fecha coherentes claramente.\\n- MEDIA = algunos datos coinciden pero faltan otros.\\n- BAJA = casi no coincide o hay contradicciones.\\n\\nREGLAS DE CONFIANZA:\\nLa confianza mide qué tan seguro estás del análisis total (documento + comparación).\\n- 90 a 100 = documento claro, oficial y coincidencia evidente.\\n- 70 a 89 = documento válido con pequeñas dudas.\\n- 40 a 69 = evidencia parcial, ambigua o coincidencia incompleta.\\n- 0 a 39 = documento inválido, ilegible o contradicciones claras.\\n- Nunca asignes confianza alta a documentos dudosos.\\n\\nREGLA CLAVE:\\nSi dudas entre VALIDA e INVALIDA, responde REVISION.\\nSi no puedes leer bien el documento, baja la confianza.\\n\\nResponde SOLO JSON puro, exactamente así:\\n{\\\"resultado\\\":\\\"VALIDA\\\",\\\"confianza\\\":85,\\\"coincidencia\\\":\\\"ALTA\\\",\\\"razon\\\":\\\"Documento médico oficial y motivo coincide con formulario\\\"}\"\n    }\n  ]\n}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.4,
+        "position": [
+          528,
+          1056
+        ],
+        "id": "b293961c-9f1a-4e6f-a408-39ebf3847e2c",
+        "name": "OpenRouter1"
+      },
+      {
+        "parameters": {
+          "operation": "appendOrUpdate",
+          "documentId": {
+            "__rl": true,
+            "value": "1OyktmfcowE1Sgb9bGEhRv_vlRxDHG4sqwa9swJTRBCU",
+            "mode": "list",
+            "cachedResultName": "Formulario_Justificaciones",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1OyktmfcowE1Sgb9bGEhRv_vlRxDHG4sqwa9swJTRBCU/edit?usp=drivesdk"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": "gid=0",
+            "mode": "list",
+            "cachedResultName": "Hoja 1",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1OyktmfcowE1Sgb9bGEhRv_vlRxDHG4sqwa9swJTRBCU/edit#gid=0"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "Estado": "Aprobada",
+              "Fecha": "={{ $('Datos Obtenidos').item.json.fecha }}",
+              "Confianza": "={{ JSON.parse($json.choices[0].message.content).confianza }}",
+              "Razon": "={{ JSON.parse($json.choices[0].message.content).razon }}",
+              "Nombre Completo": "={{ $('Webhook1').item.json.body.name }}",
+              "ID": "={{ $('Webhook1').item.json.body.id }}",
+              "Correo": "={{ $('Webhook1').item.json.body.email }}",
+              "Motivo": "={{ $('Webhook1').item.json.body.reason }}"
+            },
+            "matchingColumns": [
+              "Fecha"
+            ],
+            "schema": [
+              {
+                "id": "Fecha",
+                "displayName": "Fecha",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "Nombre Completo",
+                "displayName": "Nombre Completo",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "ID",
+                "displayName": "ID",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "Correo",
+                "displayName": "Correo",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "Motivo",
+                "displayName": "Motivo",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "Confianza",
+                "displayName": "Confianza",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "Estado",
+                "displayName": "Estado",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "Razon",
+                "displayName": "Razon",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.7,
+        "position": [
+          976,
+          768
+        ],
+        "id": "5ef16cbd-954e-470e-a13f-611577097756",
+        "name": "Valida1",
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "BqERhx66OQojmy6G",
+            "name": "Google Sheets OAuth2 API"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "appendOrUpdate",
+          "documentId": {
+            "__rl": true,
+            "value": "1OyktmfcowE1Sgb9bGEhRv_vlRxDHG4sqwa9swJTRBCU",
+            "mode": "list",
+            "cachedResultName": "Formulario_Justificaciones",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1OyktmfcowE1Sgb9bGEhRv_vlRxDHG4sqwa9swJTRBCU/edit?usp=drivesdk"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": "gid=0",
+            "mode": "list",
+            "cachedResultName": "Hoja 1",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1OyktmfcowE1Sgb9bGEhRv_vlRxDHG4sqwa9swJTRBCU/edit#gid=0"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "Estado": "En revision",
+              "Fecha": "={{ $('Datos Obtenidos').item.json.fecha }}",
+              "Confianza": "={{ JSON.parse($json.choices[0].message.content).confianza }}",
+              "Razon": "={{ JSON.parse($json.choices[0].message.content).razon }}",
+              "Nombre Completo": "={{ $('Datos Obtenidos').item.json.body.name }}",
+              "ID": "={{ $('Datos Obtenidos').item.json.body.id }}",
+              "Correo": "={{ $('Datos Obtenidos').item.json.email }}",
+              "Motivo": "={{ $('Datos Obtenidos').item.json.motivo }}"
+            },
+            "matchingColumns": [
+              "Fecha"
+            ],
+            "schema": [
+              {
+                "id": "Fecha",
+                "displayName": "Fecha",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "Nombre Completo",
+                "displayName": "Nombre Completo",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "ID",
+                "displayName": "ID",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "Correo",
+                "displayName": "Correo",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "Motivo",
+                "displayName": "Motivo",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "Confianza",
+                "displayName": "Confianza",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "Estado",
+                "displayName": "Estado",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "Razon",
+                "displayName": "Razon",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.7,
+        "position": [
+          976,
+          960
+        ],
+        "id": "6728ad98-e22d-488f-a216-b0114b3bf581",
+        "name": "En revision1",
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "BqERhx66OQojmy6G",
+            "name": "Google Sheets OAuth2 API"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "appendOrUpdate",
+          "documentId": {
+            "__rl": true,
+            "value": "1OyktmfcowE1Sgb9bGEhRv_vlRxDHG4sqwa9swJTRBCU",
+            "mode": "list",
+            "cachedResultName": "Formulario_Justificaciones",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1OyktmfcowE1Sgb9bGEhRv_vlRxDHG4sqwa9swJTRBCU/edit?usp=drivesdk"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": "gid=0",
+            "mode": "list",
+            "cachedResultName": "Hoja 1",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1OyktmfcowE1Sgb9bGEhRv_vlRxDHG4sqwa9swJTRBCU/edit#gid=0"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "Estado": "Invalida",
+              "Fecha": "={{ $('Datos Obtenidos').item.json.fecha }}",
+              "Confianza": "={{ JSON.parse($json.choices[0].message.content).confianza }}",
+              "Razon": "={{ JSON.parse($json.choices[0].message.content).razon }}",
+              "Nombre Completo": "={{ $('Webhook1').item.json.body.name }}",
+              "ID": "={{ $('Webhook1').item.json.body.id }}",
+              "Correo": "={{ $('Webhook1').item.json.body.email }}",
+              "Motivo": "={{ $('Webhook1').item.json.body.reason }}"
+            },
+            "matchingColumns": [
+              "Fecha"
+            ],
+            "schema": [
+              {
+                "id": "Fecha",
+                "displayName": "Fecha",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "Nombre Completo",
+                "displayName": "Nombre Completo",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "ID",
+                "displayName": "ID",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "Correo",
+                "displayName": "Correo",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "Motivo",
+                "displayName": "Motivo",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "Confianza",
+                "displayName": "Confianza",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "Estado",
+                "displayName": "Estado",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "Razon",
+                "displayName": "Razon",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.7,
+        "position": [
+          976,
+          1152
+        ],
+        "id": "f98f3289-2854-48f1-8865-d2a2c13c838a",
+        "name": "Invalida1",
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "BqERhx66OQojmy6G",
+            "name": "Google Sheets OAuth2 API"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 3
+            },
+            "conditions": [
+              {
+                "id": "55171dc1-4994-4d75-ae1a-13ce7ca14a62",
+                "leftValue": "={{$binary.supportFile0.mimeType}}",
+                "rightValue": "image",
+                "operator": {
+                  "type": "string",
+                  "operation": "contains"
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.3,
+        "position": [
+          80,
+          960
+        ],
+        "id": "69562cea-2ba6-4f22-980d-81e0e6dae969",
+        "name": "If"
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://openrouter.ai/api/v1/chat/completions",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "Authorization",
+                "value": "Bearer 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"
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          },
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={\n  \"model\": \"openai/gpt-4o-mini\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"Eres un sistema que SOLO responde con JSON válido. No uses bloques de código, no uses ```json, no agregues texto adicional.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": [\n        {\n          \"type\": \"text\",\n          \"text\": \"Actúa como auditor ESTRICTO de justificaciones académicas. Debes analizar la imagen adjunta como evidencia de una inasistencia y compararla rigurosamente con la información registrada en el formulario.\\n\\nDATOS DEL FORMULARIO:\\n- Nombre: {{ $('Webhook1').item.json.body.name }}\\n- Identificación: {{ $('Webhook1').item.json.body.id }}\\n- Correo: {{ $('Webhook1').item.json.body.email }}\\n- Motivo reportado: {{ $('Webhook1').item.json.body.reason }}\\n- Descripción adicional: {{ $json.otherReason || 'No especificada' }}\\n\\nDEBES EVALUAR DOS FACTORES OBLIGATORIOS:\\n1. Si la imagen realmente sirve como evidencia válida de la inasistencia.\\n2. Si la información del formulario coincide con lo visible en la imagen.\\n\\nREGLAS ESTRICTAS PARA APROBAR:\\n\\nSOLO responde VALIDA si se cumplen ambas condiciones:\\n- La imagen muestra evidencia oficial, clara y coherente como:\\n  • Incapacidad médica\\n  • Certificado médico\\n  • Orden médica\\n  • Cita médica verificable con fecha\\n  • Hospitalización\\n  • Emergencia familiar documentada\\n  • Documento institucional verificable\\n- Y además la información del formulario coincide razonablemente con la imagen en motivo, fechas o identidad.\\n\\nResponde INVALIDA si ocurre cualquiera de estos casos:\\n- Imagen sin relación con ausencia académica.\\n- Imagen vacía o sin contenido útil.\\n- Texto ilegible, borroso o incompleto.\\n- Factura común, recibo cualquiera o comprobante irrelevante.\\n- Captura de pantalla sin contexto.\\n- Documento genérico sin nombres, fecha o entidad.\\n- Imagen sospechosa o aparentemente falsa.\\n- El motivo del formulario contradice la imagen.\\n- El documento pertenece a otra persona sin relación evidente.\\n- Las fechas no respaldan la ausencia solicitada.\\n- Contenido demasiado corto o ambiguo.\\n\\nResponde REVISION si:\\n- Existe evidencia parcial pero insuficiente.\\n- Imagen aparentemente válida pero faltan datos clave.\\n- Coincidencia parcial entre formulario e imagen.\\n- Existen dudas razonables para aprobar automáticamente.\\n\\nREGLAS DE COINCIDENCIA:\\n- ALTA = nombre/motivo/fecha coherentes claramente.\\n- MEDIA = algunos datos coinciden pero faltan otros.\\n- BAJA = casi no coincide o hay contradicciones.\\n\\nREGLAS DE CONFIANZA:\\nLa confianza mide qué tan seguro estás del análisis total (imagen + comparación).\\n- 90 a 100 = imagen clara, oficial y coincidencia evidente.\\n- 70 a 89 = imagen válida con pequeñas dudas.\\n- 40 a 69 = evidencia parcial, ambigua o coincidencia incompleta.\\n- 0 a 39 = imagen inválida, ilegible o contradicciones claras.\\n- Nunca asignes confianza alta a imágenes dudosas.\\n\\nREGLA CLAVE:\\nSi dudas entre VALIDA e INVALIDA, responde REVISION.\\nSi no puedes leer bien la imagen, baja la confianza.\\n\\nResponde únicamente con un objeto JSON válido en una sola línea, exactamente así:\\n{\\\"resultado\\\":\\\"VALIDA\\\",\\\"confianza\\\":85,\\\"coincidencia\\\":\\\"ALTA\\\",\\\"razon\\\":\\\"Documento médico oficial y motivo coincide con formulario\\\"}\"\n        },\n        {\n          \"type\": \"image_url\",\n          \"image_url\": {\n            \"url\": \"data:{{ $('Webhook1').item.binary.supportFile0.mimeType }};base64,{{ $json.imagen64 }}\"\n          }\n        }\n      ]\n    }\n  ]\n}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.4,
+        "position": [
+          528,
+          864
+        ],
+        "id": "a6fb13b7-91c3-4174-a11c-843e5d5a0ff7",
+        "name": "OpenRouter2"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "cbd25b48-044d-4586-8652-848a85c68f8b",
+                "name": "nombre",
+                "value": "={{ $json.body.name }}",
+                "type": "string"
+              },
+              {
+                "id": "0a207c4f-cffe-44fd-b902-416052b7f197",
+                "name": "ID",
+                "value": "={{ $json.body.id }}",
+                "type": "string"
+              },
+              {
+                "id": "98f726c2-4197-4e6e-a02b-36aea4a7c3ea",
+                "name": "email",
+                "value": "={{ $json.body.email }}",
+                "type": "string"
+              },
+              {
+                "id": "826d5911-3cf4-4bf2-8ba9-93a8bae710aa",
+                "name": "motivo",
+                "value": "={{ $json.body.reason }}",
+                "type": "string"
+              },
+              {
+                "id": "24d11bef-5223-4f2e-804b-545fb914c08e",
+                "name": "detalle",
+                "value": "={{ $json.body.otherReason }}",
+                "type": "string"
+              },
+              {
+                "id": "088a8067-e37a-4410-86b3-d3a92bf447a6",
+                "name": "fecha",
+                "value": "={{$now}}",
+                "type": "string"
+              }
+            ]
+          },
+          "includeOtherFields": true,
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          -144,
+          960
+        ],
+        "id": "55bede36-1a71-4319-85d2-95f1bfb54783",
+        "name": "Datos Obtenidos"
+      },
+      {
+        "parameters": {
+          "operation": "pdf",
+          "binaryPropertyName": "supportFile0",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.extractFromFile",
+        "typeVersion": 1.1,
+        "position": [
+          304,
+          1056
+        ],
+        "id": "d0a55e3f-0677-44a2-9f21-7d9e1a66a467",
+        "name": "Archivo pdf"
+      },
+      {
+        "parameters": {
+          "operation": "binaryToPropery",
+          "binaryPropertyName": "supportFile0",
+          "destinationKey": "imagen64",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.extractFromFile",
+        "typeVersion": 1.1,
+        "position": [
+          304,
+          864
+        ],
+        "id": "3f8f60bc-05b7-4131-b621-f68cdcfff83c",
+        "name": "Extract Image"
+      }
+    ],
+    "connections": {
+      "Webhook1": {
+        "main": [
+          [
+            {
+              "node": "Datos Obtenidos",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Switch2": {
+        "main": [
+          [
+            {
+              "node": "Valida1",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "En revision1",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Invalida1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenRouter1": {
+        "main": [
+          [
+            {
+              "node": "Switch2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "If": {
+        "main": [
+          [
+            {
+              "node": "Extract Image",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Archivo pdf",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenRouter2": {
+        "main": [
+          [
+            {
+              "node": "Switch2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Datos Obtenidos": {
+        "main": [
+          [
+            {
+              "node": "If",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Archivo pdf": {
+        "main": [
+          [
+            {
+              "node": "OpenRouter1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Extract Image": {
+        "main": [
+          [
+            {
+              "node": "OpenRouter2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "pinData": {},
+    "meta": {
+      "templateCredsSetupCompleted": true,
+      "instanceId": "2d827bd58112a57832165cca82179a7f7d28e353113c7ad640c7313c7f708cf0"
+    }
+  }
