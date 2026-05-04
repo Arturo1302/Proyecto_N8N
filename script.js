@@ -274,7 +274,7 @@ form.addEventListener('submit', async function (e) {
     formData.append('supportFile', fileInput.files[0]);
 
     var response = await fetch(
-      'https://arturo1302.app.n8n.cloud/webhook-test/formulario',
+      'https://arturo13022003.app.n8n.cloud/webhook-test/formulario',
       {
         method: 'POST',
         body: formData
