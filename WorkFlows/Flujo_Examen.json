@@ -1,0 +1,137 @@
+{
+    "nodes": [
+      {
+        "parameters": {
+          "rule": {
+            "interval": [
+              {
+                "field": "weeks",
+                "triggerAtDay": [
+                  5
+                ],
+                "triggerAtHour": 17
+              }
+            ]
+          }
+        },
+        "type": "n8n-nodes-base.scheduleTrigger",
+        "typeVersion": 1.3,
+        "position": [
+          96,
+          -80
+        ],
+        "id": "ea5d449e-7e03-4a96-bd8b-d01ad00b9a06",
+        "name": "Schedule Trigger"
+      },
+      {
+        "parameters": {
+          "documentId": {
+            "__rl": true,
+            "value": "1OyktmfcowE1Sgb9bGEhRv_vlRxDHG4sqwa9swJTRBCU",
+            "mode": "list",
+            "cachedResultName": "Formulario_Justificaciones",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1OyktmfcowE1Sgb9bGEhRv_vlRxDHG4sqwa9swJTRBCU/edit?usp=drivesdk"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": "gid=0",
+            "mode": "list",
+            "cachedResultName": "Hoja 1",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1OyktmfcowE1Sgb9bGEhRv_vlRxDHG4sqwa9swJTRBCU/edit#gid=0"
+          },
+          "filtersUI": {
+            "values": []
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.7,
+        "position": [
+          304,
+          -80
+        ],
+        "id": "384b1046-7376-43b0-b5d6-b2968baa2132",
+        "name": "Get row(s) in sheet",
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "eTNB2nkUcKUOK3Ej",
+            "name": "Google Sheets OAuth2 API"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "chatId": "5344122321",
+          "text": "=========== Resumen Semanal Inasistencias ==========\nTotal procesadas: {{ $json.total }}\nAprobadas:            {{ $json.totalAprobada }}\nRechazadas:          {{ $json.totalInvalida }}",
+          "additionalFields": {}
+        },
+        "type": "n8n-nodes-base.telegram",
+        "typeVersion": 1.2,
+        "position": [
+          880,
+          -80
+        ],
+        "id": "336dfb2d-2278-4ed7-a88a-7a89f07e79b1",
+        "name": "Send a text message1",
+        "webhookId": "bd0adc4a-8516-4782-9c09-b3836fca7922",
+        "credentials": {
+          "telegramApi": {
+            "id": "vQtHIBD7lJy98OZk",
+            "name": "Telegram account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsCode": "const items = $input.all();\nconst totalAprobada = items.filter(\n  (item) => item?.json?.Estado === \"Aprobada\",\n).length;\nconst totalInvalida = items.filter(\n  (item) => item?.json?.Estado === \"Invalida\",\n).length;\nconst total = totalAprobada + totalInvalida;\n\nreturn [{ json: { totalAprobada, totalInvalida, total } }];\n"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          608,
+          -80
+        ],
+        "id": "63c3a8c1-2ed3-44e3-83d8-14f6b73b494d",
+        "name": "Code in JavaScript"
+      }
+    ],
+    "connections": {
+      "Schedule Trigger": {
+        "main": [
+          [
+            {
+              "node": "Get row(s) in sheet",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get row(s) in sheet": {
+        "main": [
+          [
+            {
+              "node": "Code in JavaScript",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Code in JavaScript": {
+        "main": [
+          [
+            {
+              "node": "Send a text message1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "pinData": {},
+    "meta": {
+      "instanceId": "fd8266b144525f80000bef6ef3ec994fe5e550b0a77adf17f7646a833f54be77"
+    }
+  }
